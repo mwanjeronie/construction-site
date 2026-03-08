@@ -26,7 +26,8 @@ export default function AboutEditor({ config, onSaved }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ about, team }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
       if (!res.ok) throw new Error(data.error || "Save failed");
       onSaved(data.config);
       setSaved(true);

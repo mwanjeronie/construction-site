@@ -3,6 +3,8 @@ import { getSiteConfig, saveSiteConfig } from "@/lib/config";
 import { getSession } from "@/lib/session";
 import type { SiteConfig } from "@/types/config";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const config = await getSiteConfig();

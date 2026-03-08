@@ -25,7 +25,8 @@ export default function ContactEditor({ config, onSaved }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contact, social_links: social }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
       if (!res.ok) throw new Error(data.error || "Save failed");
       onSaved(data.config);
       setSaved(true);

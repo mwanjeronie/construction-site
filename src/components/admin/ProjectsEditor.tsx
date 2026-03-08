@@ -37,7 +37,8 @@ export default function ProjectsEditor({ config, onSaved }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projects }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text ? JSON.parse(text) : {};
       if (!res.ok) throw new Error(data.error || "Save failed");
       onSaved(data.config);
       setSaved(true);
