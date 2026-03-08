@@ -1,13 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import path from "path";
-
-function getSupabaseClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  return createClient(url, key);
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -39,7 +33,6 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const supabase = getSupabaseClient();
     const { error } = await supabase.storage
       .from("images")
       .upload(fileName, buffer, { contentType: file.type, upsert: false });
