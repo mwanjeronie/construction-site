@@ -5,14 +5,16 @@ import type { SiteConfig } from "@/types/config";
 
 export const dynamic = "force-dynamic";
 
+const NO_CACHE = { "Cache-Control": "no-store, no-cache, must-revalidate" };
+
 export async function GET() {
   try {
     const config = await getSiteConfig();
-    return NextResponse.json(config);
+    return NextResponse.json(config, { headers: NO_CACHE });
   } catch {
     return NextResponse.json(
       { error: "Failed to load config" },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE }
     );
   }
 }
