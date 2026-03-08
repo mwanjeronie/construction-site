@@ -1,0 +1,38 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getSiteConfig, saveSiteConfig } from "@/lib/config";
+import { getSession } from "@/lib/session";
+import type { SiteConfig } from "@/types/config";
+
+export async function GET() {
+  try {
+    const config = getSiteConfig();
+    return NextResponse.json(config);
+  } catch {
+    return NextResponse.json(
+      { error: "Failed to load config" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session.isAdmin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = (await request.json()) as Partial<SiteConfig>;
+    const current = getSiteConfig();
+    const updated: SiteConfig = { ...current, ...body };
+    saveSiteConfig(updated);
+
+    return NextResponse.json({ success: true, config: updated });
+  } catch (err) {
+    console.error("Config update error:", err);
+    return NextResponse.json(
+      { error: "Failed to save config" },
+      { status: 500 }
+    );
+  }
+}
