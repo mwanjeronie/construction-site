@@ -4,8 +4,8 @@ import Footer from "@/components/Footer";
 import ContactSection from "@/components/ContactSection";
 import Link from "next/link";
 
-export default function ContactPage() {
-  const config = getSiteConfig();
+export default async function ContactPage() {
+  const config = await getSiteConfig();
 
   return (
     <>

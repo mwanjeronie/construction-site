@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
   const session = await getSession();
   if (!session.isAdmin) redirect("/admin/login");
 
-  const config = getSiteConfig();
+  const config = await getSiteConfig();
 
   const stats = [
     { label: "Services", value: config.services.length, icon: FaTools, href: "/admin/edit?section=services" },

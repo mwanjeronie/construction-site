@@ -9,8 +9,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaArrowRight, FaBullseye, FaEye, FaHandshake } from "react-icons/fa";
 
-export default function HomePage() {
-  const config = getSiteConfig();
+export default async function HomePage() {
+  const config = await getSiteConfig();
 
   return (
     <>

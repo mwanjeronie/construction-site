@@ -20,7 +20,7 @@ const inter = Inter({
 export async function generateMetadata(): Promise<Metadata> {
   let config;
   try {
-    config = getSiteConfig();
+    config = await getSiteConfig();
   } catch {
     config = null;
   }

@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaBullseye, FaEye, FaHandshake, FaArrowRight, FaUsers, FaAward, FaMapMarkerAlt } from "react-icons/fa";
 
-export default function AboutPage() {
-  const config = getSiteConfig();
+export default async function AboutPage() {
+  const config = await getSiteConfig();
   const { about } = config;
 
   return (

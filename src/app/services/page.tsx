@@ -5,8 +5,8 @@ import ServicesGrid from "@/components/ServicesGrid";
 import Link from "next/link";
 import { FaArrowRight, FaCheckCircle } from "react-icons/fa";
 
-export default function ServicesPage() {
-  const config = getSiteConfig();
+export default async function ServicesPage() {
+  const config = await getSiteConfig();
 
   const process = [
     { step: "01", title: "Initial Consultation", desc: "We meet to understand your vision, requirements, and budget." },

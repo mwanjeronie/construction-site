@@ -1,27 +1,41 @@
-import fs from "fs";
-import path from "path";
+import { createClient } from "@supabase/supabase-js";
 import type { SiteConfig } from "@/types/config";
 
-const CONFIG_PATH = path.join(process.cwd(), "data", "site-config.json");
-
-export function getSiteConfig(): SiteConfig {
-  try {
-    const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
-    return JSON.parse(raw) as SiteConfig;
-  } catch {
-    throw new Error("Failed to read site config");
-  }
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Missing Supabase env vars");
+  return createClient(url, key);
 }
 
-export function saveSiteConfig(config: SiteConfig): void {
-  const json = JSON.stringify(config, null, 2);
-  fs.writeFileSync(CONFIG_PATH, json, "utf-8");
+export async function getSiteConfig(): Promise<SiteConfig> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("site_config")
+    .select("config")
+    .eq("id", 1)
+    .single();
+
+  if (error) throw new Error(`Failed to read site config: ${error.message}`);
+  return data.config as SiteConfig;
 }
 
-export function updateSiteConfig(partial: Partial<SiteConfig>): SiteConfig {
-  const current = getSiteConfig();
+export async function saveSiteConfig(config: SiteConfig): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from("site_config")
+    .update({ config, updated_at: new Date().toISOString() })
+    .eq("id", 1);
+
+  if (error) throw new Error(`Failed to save site config: ${error.message}`);
+}
+
+export async function updateSiteConfig(
+  partial: Partial<SiteConfig>
+): Promise<SiteConfig> {
+  const current = await getSiteConfig();
   const updated = deepMerge(current, partial) as SiteConfig;
-  saveSiteConfig(updated);
+  await saveSiteConfig(updated);
   return updated;
 }
 

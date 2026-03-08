@@ -5,8 +5,8 @@ import ProjectsGallery from "@/components/ProjectsGallery";
 import Link from "next/link";
 import { FaArrowRight } from "react-icons/fa";
 
-export default function ProjectsPage() {
-  const config = getSiteConfig();
+export default async function ProjectsPage() {
+  const config = await getSiteConfig();
 
   return (
     <>

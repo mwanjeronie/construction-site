@@ -5,7 +5,7 @@ import type { SiteConfig } from "@/types/config";
 
 export async function GET() {
   try {
-    const config = getSiteConfig();
+    const config = await getSiteConfig();
     return NextResponse.json(config);
   } catch {
     return NextResponse.json(
@@ -23,9 +23,9 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = (await request.json()) as Partial<SiteConfig>;
-    const current = getSiteConfig();
+    const current = await getSiteConfig();
     const updated: SiteConfig = { ...current, ...body };
-    saveSiteConfig(updated);
+    await saveSiteConfig(updated);
 
     return NextResponse.json({ success: true, config: updated });
   } catch (err) {
