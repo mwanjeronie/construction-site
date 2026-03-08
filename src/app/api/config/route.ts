@@ -11,14 +11,9 @@ export async function GET() {
   try {
     const config = await getSiteConfig();
     return NextResponse.json(config, { headers: NO_CACHE });
-  } catch (err) {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  } catch {
     return NextResponse.json(
-      {
-        error: "Failed to load config",
-        detail: err instanceof Error ? err.message : String(err),
-        supabase_url_prefix: url ? url.slice(0, 30) : "NOT SET",
-      },
+      { error: "Failed to load config" },
       { status: 500, headers: NO_CACHE }
     );
   }

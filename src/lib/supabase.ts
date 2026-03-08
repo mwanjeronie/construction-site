@@ -9,4 +9,10 @@ if (!url || !key) {
   );
 }
 
-export const supabase = createClient(url, key);
+// Pass cache: 'no-store' on every fetch so Next.js 14's Data Cache
+// never serves a stale snapshot of the database.
+export const supabase = createClient(url, key, {
+  global: {
+    fetch: (input, init) => fetch(input, { ...init, cache: "no-store" }),
+  },
+});
