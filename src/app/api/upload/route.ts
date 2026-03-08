@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
-import { writeFile, mkdir } from "fs/promises";
+import { createClient } from "@supabase/supabase-js";
 import path from "path";
+
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  return createClient(url, key);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,25 +28,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
     }
 
-    const maxSize = 10 * 1024 * 1024; // 10 MB
-    if (file.size > maxSize) {
+    if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json({ error: "File too large (max 10 MB)" }, { status: 400 });
     }
-
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
 
     const ext = path.extname(file.name) || ".jpg";
     const baseName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9-_]/g, "-");
     const fileName = `${Date.now()}-${baseName}${ext}`;
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
 
-    const filePath = path.join(uploadDir, fileName);
-    await writeFile(filePath, buffer);
+    const supabase = getSupabaseClient();
+    const { error } = await supabase.storage
+      .from("images")
+      .upload(fileName, buffer, { contentType: file.type, upsert: false });
 
-    return NextResponse.json({ url: `/uploads/${fileName}` });
+    if (error) throw new Error(error.message);
+
+    const { data: { publicUrl } } = supabase.storage
+      .from("images")
+      .getPublicUrl(fileName);
+
+    return NextResponse.json({ url: publicUrl });
   } catch (err) {
     console.error("Upload error:", err);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
