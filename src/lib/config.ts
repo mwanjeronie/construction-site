@@ -1,14 +1,33 @@
 import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
 import type { SiteConfig } from "@/types/config";
 
-function getSupabaseClient() {
+function isSupabaseConfigured() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Missing Supabase env vars");
+  return (
+    url && key &&
+    !url.includes("your-project-ref") &&
+    !key.includes("your-service-role-key")
+  );
+}
+
+function getSupabaseClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   return createClient(url, key);
 }
 
+function getLocalConfig(): SiteConfig {
+  const CONFIG_PATH = path.join(process.cwd(), "data", "site-config.json");
+  const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
+  return JSON.parse(raw) as SiteConfig;
+}
+
 export async function getSiteConfig(): Promise<SiteConfig> {
+  if (!isSupabaseConfigured()) return getLocalConfig();
+
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from("site_config")
@@ -21,6 +40,12 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 }
 
 export async function saveSiteConfig(config: SiteConfig): Promise<void> {
+  if (!isSupabaseConfigured()) {
+    const CONFIG_PATH = path.join(process.cwd(), "data", "site-config.json");
+    fs.writeFileSync(CONFIG_PATH, JSON.stringify(config, null, 2), "utf-8");
+    return;
+  }
+
   const supabase = getSupabaseClient();
   const { error } = await supabase
     .from("site_config")

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { getSiteConfig } from "@/lib/config";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
